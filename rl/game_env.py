@@ -4,13 +4,15 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.env_checker import check_env
 import numpy as np
+import sys
+sys.path.append('..')
 from strategies.strategy import *
 import random
 
 PAYOFF = [[(10, 10), (0, 20)], [(20, 0), (5, 5)]]
 STRATEGIES = ["c", "d", "r", "tft", "gt", "tf2t", "2tft", "grad", "sm", "hm", "rp", "sg", "p"]
 MODELS = ["memory_model", "opponent_agent", "diff_rewards", "opponent_agent2"]
-ROUNDS = 100
+ROUNDS = 30
 
 class GameEnv(gym.Env):
     def __init__(self, opponents, play_model):
@@ -39,6 +41,8 @@ class GameEnv(gym.Env):
         """
         Given an action, play one rounds of the game 
         """
+        self.round_num+=1
+
         if self.play_model: # opponent action (model)
             opponent_action, _states = self.opponent_model.predict({'opponent_action': self.agent_obvs, 'agent_action': self.opponent_obvs})
         else: # opponent action (strategy)
@@ -48,8 +52,8 @@ class GameEnv(gym.Env):
         agent_reward, opponent_reward  = PAYOFF[action][opponent_action]
 
         # update full history
-        self.opponent_history[self.round_num] = opponent_action
-        self.agent_history[self.round_num] = action
+        self.opponent_history[self.round_num - 1] = opponent_action
+        self.agent_history[self.round_num - 1] = action
 
         # update observations (last 10 rounds)
         self.agent_obvs[:-1] = self.agent_obvs[1:]
@@ -62,7 +66,6 @@ class GameEnv(gym.Env):
         agent_defect_avg = np.sum(self.agent_history) / self.round_num
 
         # update round info
-        self.round_num+=1
         self.reward+=agent_reward
         self.actions.append(action)
 
@@ -160,7 +163,7 @@ if __name__ == "__main__":
     """
     for strat in STRATEGIES:
         print("strat: " + strat)
-        env = GameEnv([strat])
+        env = GameEnv([strat], False)
         model = PPO('MultiInputPolicy', env, verbose=1).learn(total_timesteps=100000)
-        model.save("/home/jops/game_theory/results/models/more_obvs/" + strat)
-        env.log("/home/jops/game_theory/results/logs/more_obvs/" + strat + "/")
+        model.save("/home/jops/game_theory/results/models/short_rounds/" + strat)
+        env.log("/home/jops/game_theory/results/logs/short_rounds/" + strat + "/")
