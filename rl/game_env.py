@@ -12,7 +12,7 @@ import random
 PAYOFF = [[(10, 10), (0, 20)], [(20, 0), (5, 5)]]
 STRATEGIES = ["c", "d", "r", "tft", "gt", "tf2t", "2tft", "grad", "sm", "hm", "rp", "sg", "p"]
 MODELS = ["memory_model", "opponent_agent", "diff_rewards", "opponent_agent2"]
-ROUNDS = 30
+ROUNDS = 100
 
 class GameEnv(gym.Env):
     def __init__(self, opponents, play_model):
@@ -41,15 +41,17 @@ class GameEnv(gym.Env):
         """
         Given an action, play one rounds of the game 
         """
-        self.round_num+=1
-
         if self.play_model: # opponent action (model)
             opponent_action, _states = self.opponent_model.predict({'opponent_action': self.agent_obvs, 'agent_action': self.opponent_obvs})
         else: # opponent action (strategy)
+            #print("strategy choosing...")
             opponent_action = self.opponent.choose(self.opponent_history, self.agent_history, self.round_num)
 
+        self.round_num+=1
         # payoff
+        # print("my action, opponent action:", action, " , ", opponent_action)
         agent_reward, opponent_reward  = PAYOFF[action][opponent_action]
+        # print("my reward, opponent reward:", agent_reward, " , ", opponent_reward)
 
         # update full history
         self.opponent_history[self.round_num - 1] = opponent_action
@@ -72,6 +74,9 @@ class GameEnv(gym.Env):
         if self.round_num == ROUNDS: # terminal state 
             terminal = True
             self.average_rewards.append(self.reward / float(ROUNDS))
+            print("average reward = ", self.average_rewards[-1])
+            print("total rewad: ", self.reward)
+            print("rounds: ", float(ROUNDS))
             self.strategies.append(self.s)
         else: # non terminal
             terminal = False
@@ -164,6 +169,6 @@ if __name__ == "__main__":
     for strat in STRATEGIES:
         print("strat: " + strat)
         env = GameEnv([strat], False)
-        model = PPO('MultiInputPolicy', env, verbose=1).learn(total_timesteps=100000)
-        model.save("/home/jops/game_theory/results/models/short_rounds/" + strat)
-        env.log("/home/jops/game_theory/results/logs/short_rounds/" + strat + "/")
+        model = PPO('MultiInputPolicy', env, verbose=1).learn(total_timesteps=10000)
+        model.save("/home/jops/game_theory/results/models/test/" + strat)
+        env.log("/home/jops/game_theory/results/logs/test/" + strat + "/")
