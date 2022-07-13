@@ -138,13 +138,13 @@ class ActionProbability:
 
     def prober(strat_acts, opponent_acts, unexpected_prob):
         if len(strat_acts) == 0:
-            return [1 - unexpected_prob, unexpected_prob]
+            return [unexpected_prob, 1 - unexpected_prob]
         
         if len(strat_acts) == 1:
-            return [unexpected_prob, 1 - unexpected_prob]
+            return [1 - unexpected_prob, unexpected_prob]
         
         if len(strat_acts) == 2:
-            return [unexpected_prob, 1 - unexpected_prob]
+            return [1 - unexpected_prob, unexpected_prob]
         
         if opponent_acts[1] == 0 and opponent_acts[2] == 0:
             return [unexpected_prob, 1 - unexpected_prob]
