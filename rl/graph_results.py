@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import statistics
 
 def main():
-    strat = "p"
-    folder = "more_obvs"
+    strat = "r"
+    folder = "round_num"
     imagedir = "/home/jops/game_theory/results/graphs/" + folder + "/" + strat + "/"
     logdir = "/home/jops/game_theory/results/logs/" + folder + "/" + strat + "/"
 

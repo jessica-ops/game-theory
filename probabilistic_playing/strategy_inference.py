@@ -1,5 +1,5 @@
-from argparse import Action
-from errno import EPIPE
+import sys
+sys.path.append('..')
 from strategies.strategy import *
 from strategies.likelihood import Likelihood
 from strategies.action_probability import ActionProbability
@@ -18,10 +18,11 @@ def main():
     "Prober"]
 
     # functions for computing likelihood and probability of next action 
-    calculate = [Likelihood.cooperator, Likelihood.defector, Likelihood.random, Likelihood.tit_for_tat, 
-    Likelihood.grim_trigger, Likelihood.tit_for_two_tats, Likelihood.two_tits_for_tat, 
-    Likelihood.gradual, Likelihood.soft_majority, Likelihood.hard_majority, Likelihood.remorseful_prober, 
-    Likelihood.soft_grudger, Likelihood.prober]
+    lh = Likelihood(EPSILON)
+    calculate = [lh.cooperator, lh.defector, lh.random, lh.tit_for_tat, 
+    lh.grim_trigger, lh.tit_for_two_tats, lh.two_tits_for_tat, 
+    lh.gradual, lh.soft_majority, lh.hard_majority, lh.remorseful_prober, 
+    lh.soft_grudger, lh.prober]
     next_action = [ActionProbability.cooperator, ActionProbability.defector, ActionProbability.random, 
     ActionProbability.tit_for_tat, ActionProbability.grim_trigger, ActionProbability.tit_for_two_tats, 
     ActionProbability.two_tits_for_tat, ActionProbability.gradual, ActionProbability.soft_majority, 
@@ -37,7 +38,7 @@ def main():
     round = 0
 
     # set the opponent here 
-    opponent = Prober(0.1)
+    opponent = GrimTrigger(0)
     while True: 
         print("----------------------------------------")
         print("Round #" + str(round))
@@ -66,8 +67,8 @@ def main():
         for i in range(len(possibilities)):
             print(possibilities[i] + " ----  posterior: ", posterior[i], "  unexpected: ", unexpected[i] * EPSILON)
         print("")
-        for i in range(len(next_action)):
-            print(possibilities[i] + " : ", next_action[i](opponent_history, agent_history, unexpected[i] * EPSILON))
+        # for i in range(len(next_action)):
+        #     print(possibilities[i] + " : ", next_action[i](opponent_history, agent_history, unexpected[i] * EPSILON))
         
         round += 1
 
