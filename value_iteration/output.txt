@@ -1,0 +1,10 @@
+my action: 1 strat action: 0
+my reward: 20.0 strat reward: 0.0
+my action: 1 strat action: 0
+my reward: 20.0 strat reward: 0.0
+my action: 1 strat action: 0
+my reward: 20.0 strat reward: 0.0
+my action: 1 strat action: 0
+my reward: 20.0 strat reward: 0.0
+my action: 1 strat action: 0
+my reward: 20.0 strat reward: 0.0
