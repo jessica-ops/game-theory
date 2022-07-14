@@ -99,7 +99,6 @@ class ActionProbability:
         if len(strat_acts) == 0:
             return [unexpected_prob, 1 - unexpected_prob]
         
-    
         if len(strat_acts) > 5 and sum(opponent_acts[-5:]) == 5 and sum(strat_acts[-5:]) == 5:
             return [1 - unexpected_prob, unexpected_prob]
         
