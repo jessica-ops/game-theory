@@ -205,8 +205,8 @@ class Likelihood:
             num_defects += opponent_acts[r]
             # expected action is 1 
             if defects_left > 0: 
+                defects_left -= 1
                 if strat_acts[r] == 1:
-                    defects_left -= 1
                     lh *= (1 - (unexpected * self.epsilon))
                     continue
                 else:
@@ -215,8 +215,8 @@ class Likelihood:
                     continue
             # expected action is 0
             elif defects_left > -2:
+                defects_left -= 1
                 if strat_acts[r] == 0:
-                    defects_left -= 1
                     lh *= (1 - (unexpected * self.epsilon))
                 else: 
                     unexpected += 1
@@ -360,8 +360,8 @@ class Likelihood:
         for r in range(1, len(strat_acts)):
             # expected action is 1
             if sequence > 0:
+                sequence -= 1 
                 if strat_acts[r] == 1:
-                    sequence -= 1 
                     lh *= (1 - (unexpected * self.epsilon))
                     continue
                 else:
@@ -370,8 +370,8 @@ class Likelihood:
                     continue
             # expected action is 0
             elif sequence > -2:
+                sequence -= 1 
                 if strat_acts[r] == 0:
-                    sequence -= 1 
                     lh *= (1 - (unexpected * self.epsilon))
                 else:
                     unexpected += 1
