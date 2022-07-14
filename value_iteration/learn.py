@@ -12,6 +12,7 @@ def build_transition_probs(Opponent, num_games, num_rounds):
     transition_count = {}
     actions = [0, 1]
     states = [0, 1]
+    strategy = Opponent(0)
     for game in range(num_games): 
         # print("game #" + str(game))
         states_to_actions = {}
@@ -42,12 +43,10 @@ def build_transition_probs(Opponent, num_games, num_rounds):
                             # print("\t\t\tstate list:", state_list)
                             # print("\t\t\tactions list:", prev_actions_list)
                             # print("\t\t\tround:", round)
-                            strategy = Opponent(0)
                             next_state = strategy.choose(state_list, prev_actions_list, round)
                             # print("\t\t\tnext state:", next_state)
 
                             if prev_actions == None:
-                                # print("\t\tprev actions is None", prev_actions)
                                 new_actions = str(action)
                             else:
                                 new_actions = str(prev_actions) + str(action)
@@ -80,7 +79,7 @@ def build_transition_probs(Opponent, num_games, num_rounds):
                 transition_count[state][action][next_state] /= total
     return transition_count
 
-def learn(transitions, iterations, gamma, rounds):
+def learn(transitions, threshold, gamma, rounds):
     terminal = False
     states = set()
     for s in transitions.keys():
@@ -143,7 +142,7 @@ def learn(transitions, iterations, gamma, rounds):
         
         i += 1
         # print("delta:", delta)
-        if i >= iterations:
+        if delta <= threshold:
             terminal = True
     
     return Q
@@ -177,13 +176,13 @@ def play(Q, opponent, next_act_dist, rounds):
 
 def main():
     rounds = 5
-    Opponent = HardMajority
-    next_action = ActionProbability.hard_majority
+    Opponent = Prober
+    next_action = ActionProbability.prober
 
     transitions = build_transition_probs(Opponent, 1, rounds)
-    # print("done building transitions")
-    q_table = learn(transitions, 10000, 1, rounds)
-    # print("done learning")
+    #print("transitions: ", transitions)
+    q_table = learn(transitions, 0.001, 1, rounds)
+    #print("q table: ", q_table)
     play(q_table, Opponent(0), next_action, rounds)
 
 if __name__ == "__main__":

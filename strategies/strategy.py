@@ -72,11 +72,7 @@ class GrimTrigger(Strategy):
         if num_rounds == 0:
             return super().play(0)
             
-        if self.opponent_defected:
-            return super().play(1)
-
-        if other_history[num_rounds - 1] == 1:
-            self.opponent_defected = True
+        if 1 in other_history:
             return super().play(1)
 
         return super().play(0)
@@ -102,20 +98,16 @@ class TwoTitsForTats(Strategy):
     """
     def __init__(self, unexpected_prob):
         super().__init__(unexpected_prob)
-        self.must_defect = False
 
     def choose(self, my_history, other_history, num_rounds):
         if num_rounds == 0:
             return super().play(0)
         
-        if self.must_defect:
-            self.must_defect = False
-            return super().play(1)
-        
         if other_history[num_rounds - 1] == 1:
-            self.must_defect = True
             return super().play(1)
-        
+        if num_rounds >= 2 and other_history[num_rounds - 2] == 1:
+            return super().play(1)
+            
         return super().play(0)
 
 class Gradual(Strategy):
@@ -127,25 +119,36 @@ class Gradual(Strategy):
     """
     def __init__(self, unexpected_prob):
         super().__init__(unexpected_prob)
-        self.num_defections = 0
-        self.countdown = -2
+        # self.num_defections = 0
+        # self.countdown = -2
 
     def choose(self, my_history, other_history, num_rounds):
         if num_rounds == 0:
             return super().play(0)
         
-        self.num_defections += other_history[num_rounds - 1]
+        num_defects = other_history[0]
+        if num_defects > 0:
+            defects_left = num_defects
+        else:
+            defects_left = -2
 
-        if self.countdown > 0:
-            self.countdown -= 1
-            return super().play(1)
-        if -1 <= self.countdown <= 0:
-            self.countdown -= 1
-            return super().play(0)
+        for r in range(1, num_rounds):
+            num_defects += other_history[r]
+            if defects_left > -1:
+                defects_left -= 1
+            elif defects_left == -1:
+                defects_left -= 1
+                if other_history[r] == 1:
+                    defects_left = num_defects
+            else:
+                if other_history[r] == 1:
+                    defects_left = num_defects
         
-        if other_history[num_rounds - 1] == 1:
-            self.countdown = self.num_defections - 1
+        if defects_left > 0:
             return super().play(1)
+        
+        if defects_left > -2:
+            return super().play(0)
         
         return super().play(0)
 
@@ -157,19 +160,15 @@ class SoftMajority(Strategy):
     """
     def __init__(self, unexpected_prob):
         super().__init__(unexpected_prob)
-        self.opponent_cooperation = 0
-        self.opponent_defection = 0
 
     def choose(self, my_history, other_history, num_rounds):
         if num_rounds == 0:
             return super().play(0)
 
-        self.opponent_cooperation += (other_history[num_rounds - 1] + 1) % 2
-        self.opponent_defection += other_history[num_rounds - 1]
-        if self.opponent_cooperation < self.opponent_defection:
-            return super().play(1)
+        if num_rounds >= 2 * sum(other_history):
+            return super().play(0)
         
-        return super().play(0)
+        return super().play(1)
 
 class HardMajority(Strategy):
     """
@@ -178,20 +177,15 @@ class HardMajority(Strategy):
     """
     def __init__(self, unexpected_prob):
         super().__init__(unexpected_prob)
-        self.opponent_cooperation = 0
-        self.opponent_defection = 0
 
     def choose(self, my_history, other_history, num_rounds):
         if num_rounds == 0:
             return super().play(1)
 
-        self.opponent_cooperation += (other_history[num_rounds - 1] + 1) % 2
-        self.opponent_defection += other_history[num_rounds - 1]
-
-        if self.opponent_cooperation <= self.opponent_defection:
-            return super().play(1)
+        if num_rounds > 2 * sum(other_history):
+            return super().play(0)
         
-        return super().play(0)
+        return super().play(1)
 
 class RemorsefulProber(Strategy):
     """
@@ -207,16 +201,14 @@ class RemorsefulProber(Strategy):
         if num_rounds == 0:
             return super().play(0)
 
-        if other_history[num_rounds - 1] == 0:
-            self.current_defections = 0
+        if num_rounds > 5 and sum(other_history[num_rounds - 5:num_rounds]) == 5 and sum(my_history[num_rounds - 5:num_rounds]) == 5:
             return super().play(0)
         
-        if self.current_defections >= self.max_defections:
-            self.current_defections = 0
+        if other_history[-1] == 0:
             return super().play(0)
-        
-        self.current_defections += 1
+
         return super().play(1)
+
 
 class SoftGrudger(Strategy):
     """
@@ -230,16 +222,28 @@ class SoftGrudger(Strategy):
         if num_rounds == 0:
             return super().play(0)
         
-        if self.sequence > 0:
-            self.sequence -= 1
+        if other_history[0] == 1:
+            sequence = 4
+        else:
+            sequence = -2
+        
+        for r in range(1, num_rounds):
+            if sequence > -1:
+                sequence -= 1
+            elif sequence == -1:
+                sequence -= 1
+                if other_history[r] == 1:
+                    sequence = 4
+            else:
+                if other_history[r] == 1:
+                    sequence = 4
+        
+        if sequence > 0:
             return super().play(1)
-        if self.sequence > -2:
-            self.sequence -= 1
+        
+        if sequence > -2:
             return super().play(0)
-
-        if other_history[num_rounds - 1] == 1:
-            self.sequence = 3
-            return super().play(1)
+        
         return super().play(0)
 
 class Prober(Strategy):
@@ -258,9 +262,7 @@ class Prober(Strategy):
             return 0
         if num_rounds == 2:
             return 0
-        if num_rounds == 3: 
-            if other_history[num_rounds - 1] == 0 and other_history[num_rounds - 2] == 0:
-                self.defector = True
-        if self.defector:
+        
+        if other_history[1] == 0 and other_history[2] == 0:
             return super().play(1)
         return super().play(other_history[num_rounds - 1])
