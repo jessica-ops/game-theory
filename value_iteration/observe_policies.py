@@ -1,3 +1,7 @@
+"""
+NOT BEING USED -- allows an "observer" to create observed transition probabilities 
+based on a policy with a certain Q table. Currently does not implement Botlzmann Distribution.
+"""
 import random 
 import math
 import numpy as np
@@ -11,15 +15,12 @@ from value_iteration.learn import play
 PAYOFF = [[(10.0, 10.0), (0.0, 20.0)], [(20.0, 0.0), (5.0, 5.0)]]
 STRATS = [Cooperater, Defector, TitForTat, GrimTrigger, TitForTwoTats, TwoTitsForTats, Gradual, 
 SoftMajority, HardMajority, RemorsefulProber, SoftGrudger, Prober]
-# STRATS = [Cooperater, TitForTat, TwoTitsForTats]
 NAMES = ["Cooperator", "Defector", "Tit for Tat", "Grim Trigger", "Tit for Two Tats", 
 "Two Tits for Tat", "Gradual", "Soft Majority", "Hard Majority", "Remorseful Prober", "Soft Grudger", "Prober"]
-# NAMES = ["Cooperator", "Tit for Tat", "Tit for Two Tats"]
 ACTION = [ActionProbability.cooperator, ActionProbability.defector, ActionProbability.tit_for_tat, 
 ActionProbability.grim_trigger, ActionProbability.tit_for_two_tats, ActionProbability.two_tits_for_tat, 
 ActionProbability.gradual, ActionProbability.soft_majority, ActionProbability.hard_majority, 
 ActionProbability.remorseful_prober, ActionProbability.soft_grudger, ActionProbability.prober]
-# ACTION = [ActionProbability.cooperator, ActionProbability.tit_for_tat, ActionProbability.tit_for_two_tats]
 
 def load_table(filename):
     Q = {}
