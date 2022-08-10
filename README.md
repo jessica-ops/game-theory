@@ -1,4 +1,4 @@
-# game-theory
+# Game Theory & AI research
 Repo from research in Xaq Lab (https://xaqlab.com/) over summer of 2022. Applies artificial intelligence to a game theory scenario in order to create rational agents whose mental model can be determined by outside observer. 
 
 ## Abstract (Explanation of Research) 
